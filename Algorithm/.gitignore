@@ -214,4 +214,9 @@ Temporary Items
 *.icloud
 
 *.java
+.DS_Store
+.idea
+Java_Algorithm.iml
+input.txt
+out
 # End of https://www.toptal.com/developers/gitignore/api/eclipse,macos,intellij+iml,java
