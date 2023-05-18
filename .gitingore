@@ -217,5 +217,5 @@ Temporary Items
 .idea/
 Algorithm/.idea/datasource.xml
 Java_Algorithm.iml
-out/
+out
 # End of https://www.toptal.com/developers/gitignore/api/eclipse,macos,intellij+iml,java
