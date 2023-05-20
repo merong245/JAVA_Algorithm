@@ -60,4 +60,4 @@ class Solution {
         return answer;
     }
 }
-```법
+```
