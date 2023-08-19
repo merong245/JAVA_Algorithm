@@ -1,0 +1,111 @@
+문제 회고를 위해 알고리즘 풀이 기록을 남깁니다.
+
+# 백준 11266 단절점
+
+
+### 문제 이해하기
+1. 그래프가 주어졌을 때, A 정점을 제거했을 때 그래프가 두 개 또는 그 이상으로 나누어지는 정점을 단절점이라고 한다.
+2. 단절점을 모두 구하는 프로그램을 작성해라.
+
+### 문제 접근 방법
+1. 완전탐색으로는 O(V(V+E))의 시간복잡도가 걸린다.
+2. DFS Spanning Tree로 그래프의 탐색순서를 정의한다.
+3. 단절점의 조건은 아래와 같다.
+  - 루트의 경우 자식이 두개 이상이면 단절점이다.
+  - 루트가 아닌 경우, A 정점의 자식이 전부가 A 정점보다 후순위 이고, 해당 정점에서 더 빠른 정점으로 이동가능한 경우가 없으면 단절점이다.
+4. 이 경우를 이용하면 한번의 DFS로 탐색가능하므로 O(V+E)의 시간내에 해결가능하다.
+
+### 구현 배경 지식
+1. DFS
+2. DFS Spanning Tree
+
+### 접근 방법을 적용한 코드
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.*;
+
+public class Main {
+    static int v, e, count = 0;
+    static int[] nodes;
+    static boolean[] cuttingPoint;
+    static List<Integer>[] edges;
+
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        StringBuilder sb = new StringBuilder();
+        v = Integer.parseInt(st.nextToken());
+        e = Integer.parseInt(st.nextToken());
+
+        nodes = new int[v + 1];
+        edges = new List[v + 1];
+        cuttingPoint = new boolean[v + 1];
+        for (int i = 1; i <= v; i++) {
+            edges[i] = new LinkedList<>();
+            nodes[i] = -1;
+        }
+
+        for (int i = 0; i < e; i++) {
+            st = new StringTokenizer(br.readLine());
+            int a = Integer.parseInt(st.nextToken());
+            int b = Integer.parseInt(st.nextToken());
+            edges[a].add(b);
+            edges[b].add(a);
+        }
+
+        // DFS Spanning Tree
+        for (int i = 1; i <= v; i++) {
+            if (nodes[i] == -1)
+                dfs(i, true);
+        }
+        int cnt = 0;
+        for (int i = 1; i <= v; i++) {
+            if (cuttingPoint[i]) {
+                cnt++;
+                sb.append(i).append(' ');
+            }
+        }
+        System.out.println(cnt);
+        if (cnt > 0)
+            System.out.println(sb);
+    }
+
+    private static int dfs(int cur, boolean isRoot) {
+        nodes[cur] = count++; // 방문순서 마킹
+        int result = nodes[cur];
+        int childCnt = 0; // 자식수
+
+        // 자식확인
+        for (int next : edges[cur]) {
+            // 미방문한 자식인 경우
+            if (nodes[next] == -1) {
+                childCnt++;
+                // 자식의 방문 순서중 가장 작은 번호
+                int minNum = dfs(next, false);
+
+                // 단절점 확인 -> 루트노드가 아니고, 자식이 방문하는 번호중 가장 작은번호가 현재보다 크거나 같아야함(단절점까지 포함)
+                if (!isRoot && minNum >= nodes[cur]) {
+                    cuttingPoint[cur] = true;
+                }
+
+                // 현재 노드와 자식중 방문 순서가 작은 값 선택
+                result = Math.min(result, minNum);
+            }
+            // 방문한적 있는 자식인 경우
+            else {
+                // 현재 노드와 자식중 방문 순서가 작은 값 선택
+                result = Math.min(result, nodes[next]);
+            }
+        }
+        // 루트이고 자식이 둘인 경우, 제거하면 무조건 단절점
+        if (isRoot && childCnt >= 2) {
+            cuttingPoint[cur] = true;
+        }
+
+        return result;
+    }
+
+}
+```
